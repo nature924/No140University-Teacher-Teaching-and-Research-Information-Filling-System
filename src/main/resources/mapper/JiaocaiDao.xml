@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dao.JiaocaiDao">
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        a.id as id
+        ,a.jiaocai_name as jiaocaiName
+        ,a.jiaocai_uuid_number as jiaocaiUuidNumber
+        ,a.jiaocai_photo as jiaocaiPhoto
+        ,a.jiaocai_types as jiaocaiTypes
+        ,a.jiaocai_file as jiaocaiFile
+        ,a.jiaocai_content as jiaocaiContent
+        ,a.jiaocai_delete as jiaocaiDelete
+        ,a.insert_time as insertTime
+        ,a.create_time as createTime
+    </sql>
+    <select id="selectListView" parameterType="map" resultType="com.entity.view.JiaocaiView" >
+        SELECT
+        <include refid="Base_Column_List" />
+        <!-- 级联表的字段 -->
+
+        FROM jiaocai  a
+
+        <where>
+            <if test="params.ids != null">
+                and a.id in
+                <foreach item="item" index="index" collection="params.ids" open="(" separator="," close=")">
+                #{item}
+                </foreach>
+            </if>
+            <if test=" params.jiaocaiName != '' and params.jiaocaiName != null and params.jiaocaiName != 'null' ">
+                and a.jiaocai_name like CONCAT('%',#{params.jiaocaiName},'%')
+            </if>
+            <if test=" params.jiaocaiUuidNumber != '' and params.jiaocaiUuidNumber != null and params.jiaocaiUuidNumber != 'null' ">
+                and a.jiaocai_uuid_number like CONCAT('%',#{params.jiaocaiUuidNumber},'%')
+            </if>
+            <if test="params.jiaocaiTypes != null and params.jiaocaiTypes != ''">
+                and a.jiaocai_types = #{params.jiaocaiTypes}
+            </if>
+            <if test=" params.jiaocaiContent != '' and params.jiaocaiContent != null and params.jiaocaiContent != 'null' ">
+                and a.jiaocai_content like CONCAT('%',#{params.jiaocaiContent},'%')
+            </if>
+            <if test="params.jiaocaiDeleteStart != null and params.jiaocaiDeleteStart != ''">
+                <![CDATA[  and a.jiaocai_delete >= #{params.jiaocaiDeleteStart}   ]]>
+            </if>
+            <if test="params.jiaocaiDeleteEnd != null and params.jiaocaiDeleteEnd != ''">
+                <![CDATA[  and a.jiaocai_delete <= #{params.jiaocaiDeleteEnd}   ]]>
+            </if>
+             <if test="params.jiaocaiDelete != null and params.jiaocaiDelete != ''">
+                and a.jiaocai_delete = #{params.jiaocaiDelete}
+             </if>
+            <if test=" params.insertTimeStart != '' and params.insertTimeStart != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) >= UNIX_TIMESTAMP(#{params.insertTimeStart}) ]]>
+            </if>
+            <if test=" params.insertTimeEnd != '' and params.insertTimeEnd != null ">
+                <![CDATA[  and UNIX_TIMESTAMP(a.insert_time) <= UNIX_TIMESTAMP(#{params.insertTimeEnd}) ]]>
+            </if>
+
+        </where>
+        order by a.${params.sort} ${params.order}
+    </select>
+
+</mapper>
